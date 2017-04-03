@@ -1,0 +1,56 @@
+---
+title: "HUDM5124Assignment9"
+author: "Zhuqian Zhou"
+date: "2017/3/27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Step 1 Run K-mean Cluster
+```{r}
+csna <- read.csv("CSNA_MLT.csv", sep = ",", header = TRUE)
+x <- csna[,4:17] # select 14 binary vairables
+WSSvector <- c(0,0,0,0,0,0,0,0,0)
+for (i in 1:9)
+{ cl <- kmeans(x, i)
+WSSvector[i] <- cl$tot.withinss
+} # partition the data set into 1-9 clusters and record total within SS for each solution
+plot(WSSvector,type="l",xlab="# clusters",ylab="total SSW") # plot the total within-cluster sum of squares against the number of clusters
+```
+
+I use default cluster seeds, i.e. random seeds -- randomly select a set of n points as a first guess of the means of the clusters.
+
+There seems to be no anomalies in the plot. The total SSW decreases gradually from 1 to 9 clusters indicating the increase of the accuracy of clustering when the number of clusters goes higher.
+
+## Step 2
+The line plot above shows evidence for 5-9 clusters. I will choose 6 as the optimal number of clusters.
+```{r}
+cl6 <- kmeans(x, 6) # re-run the optimal solution
+csna$cl6 <- cl6$cluster # save the cluster membership of each case as a new varibale in the data frame csna
+csna$cl6
+```
+
+## Step 3
+```{r}
+cl6$centers # means of the 14 variables by cluster
+(cl6$withinss)^0.5 # standard deviations of the 14 variables by cluster
+library(descr)
+crosstab(csna$spec, csna$cl6) # do a CROSSTABS of the obtained cluster memberships with the "academic specialty or discipline" variable ("spec")
+```
+
+## Step 4
+From the crosstable above, there are 32 *spec*s of psychology, 24 *spec*s of statistics, and 10 *spec*s of business applications in Cluster 1, which suggests most members in this cluster are likely to be marketing personnel.
+
+There are 16 *spec*s of statistics, 12 *spec*s of computer science, 10 *spec*s of biology, and 10 *spec*s of math in Cluster 2, which suggests most members in this cluster are likely to be biological engineers.
+
+There are 20 *spec*s of statistics, 12 *spec*s of psychology, and 12 *spec*s of biology in Cluster 3, which suggests most members in this cluster are likely to be psychological counsellors.
+
+There are 20 *spec*s of computer science, 18 *spec*s of statistics, 10 *spec*s of psychology, and 10 *spec*s of biology in Cluster 4, which suggests most members in this cluster are likely to be experimental psychologists.
+
+There are 1 *spec*s out of 4 of agriculture, 1 *spec*s out of 3
+ of anthropology and 2 *spec*s out of 2 of geography in Cluster 5, which suggests members in this cluster are likely to work for the government.
+ 
+There are 5 *spec*s of computer science, 4 *spec*s of biology, 4 *spec*s of math, and 4 *spec*s of psychology in Cluster 6, which suggests most members in this cluster may be students in biological psychology programs.
